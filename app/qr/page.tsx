@@ -1,0 +1,35 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+export default function PlayerQRCodes() {
+  const [player1QR, setPlayer1QR] = useState<string | null>(null);
+  const [player2QR, setPlayer2QR] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchQR = async (player: "player1" | "player2", setter: any) => {
+      const res = await fetch(`/api/qr?player=${player}`);
+      const data = await res.json();
+      setter(data.qr);
+    };
+    fetchQR("player1", setPlayer1QR);
+    fetchQR("player2", setPlayer2QR);
+  }, []);
+
+  return (
+    <div className="flex gap-8">
+      {player1QR && (
+        <div className="flex flex-col items-center">
+          <img src={player1QR} alt="QR Player 1" />
+          <p>Player 1</p>
+        </div>
+      )}
+      {player2QR && (
+        <div className="flex flex-col items-center">
+          <img src={player2QR} alt="QR Player 2" />
+          <p>Player 2</p>
+        </div>
+      )}
+    </div>
+  );
+}
