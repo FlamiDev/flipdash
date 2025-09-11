@@ -11,15 +11,12 @@ function isPlayerKey(value: string): value is "player1" | "player2" {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { player: string } }
+  context: { params: Promise<{ player: string }> }
 ) {
-  const player = await params.player;
+  const { player } = await context.params;
 
   if (!isPlayerKey(player)) {
-    return NextResponse.json(
-      { success: false, reason: "invalid_player" },
-      { status: 400 }
-    );
+    return NextResponse.json({ success: false, reason: "invalid_player" }, { status: 400 });
   }
 
   if (activePlayers[player]) {
