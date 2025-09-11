@@ -2,30 +2,32 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { toast } from "sonner"
-import { IconLoader2 } from '@tabler/icons-react';
-import { useRouter } from 'next/navigation'
+import { toast } from "sonner";
+import { IconLoader2 } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
 
 export default function JoinPlayerPage() {
   const router = useRouter();
   const { player } = useParams<{ player: string }>();
-  const [status, setStatus] = useState<"loading" | "success" | "taken" | "invalid" | "error">("loading");
+  const [status, setStatus] = useState<
+    "loading" | "success" | "taken" | "invalid" | "error"
+  >("loading");
 
   if (player !== "player1" && player !== "player2") {
-    router.push('/join/invalid')
+    router.push("/join/invalid");
   }
 
   useEffect(() => {
-  if (status === "success") {
-    toast.success("Succesvol ingelogd!");
-  } else if (status === "taken") {
-    toast.error("Deze speler is al bezet.");
-  } else if (status === "invalid") {
-    toast.error("Ongeldige speler.");
-  } else if (status === "error") {
-    toast.error("Er is iets misgegaan.");
-  }
-}, [status]);
+    if (status === "success") {
+      toast.success("Succesvol ingelogd!");
+    } else if (status === "taken") {
+      toast.error("Deze speler is al bezet.");
+    } else if (status === "invalid") {
+      toast.error("Ongeldige speler.");
+    } else if (status === "error") {
+      toast.error("Er is iets misgegaan.");
+    }
+  }, [status]);
 
   useEffect(() => {
     async function join() {
@@ -55,16 +57,21 @@ export default function JoinPlayerPage() {
         <IconLoader2 stroke={2} className="animate-spin" />
       </div>
     );
-  } else if (status === "success") {
+  }
+
+  if (status === "success") {
     router.push(`/play/${player}`);
-  } else if (status === "taken") {
-    router.push('/join/taken')
-  } else if (status === "invalid") {
-    router.push('/join/invalid')
-  } else {
+    return null;
+  }
+
+  if (status === "taken" || status === "invalid" || status === "error") {
+    let message = "Something went wrong.";
+    if (status === "taken") message = "This player is already taken.";
+    if (status === "invalid") message = "This player is invalid.";
+
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <h1 className="text-2xl font-bold mb-4">Er is iets misgegaan.</h1>
+        <h1 className="text-2xl font-bold mb-4">{message}</h1>
       </div>
     );
   }

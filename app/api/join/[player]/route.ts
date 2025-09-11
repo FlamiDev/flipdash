@@ -1,30 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
-
-let activePlayers: Record<"player1" | "player2", string | null> = {
-  player1: null,
-  player2: null,
-};
-
-function isPlayerKey(value: string): value is "player1" | "player2" {
-  return value === "player1" || value === "player2";
-}
+import { activePlayers, isPlayerKey } from "@/lib/players";
 
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ player: string }> }
 ) {
   const { player } = await context.params;
-
   if (!isPlayerKey(player)) {
     return NextResponse.json({ success: false, reason: "invalid_player" }, { status: 400 });
   }
 
-  if (activePlayers[player]) {
+  const cookieSession = req.cookies.get(`${player}-session`)?.value;
+
+  if (activePlayers[player] && activePlayers[player] !== cookieSession) {
     return NextResponse.json({ success: false, reason: "taken" });
   }
 
-  const sessionId = Math.random().toString(36).substring(2);
+  const sessionId = cookieSession ?? Math.random().toString(36).substring(2);
   activePlayers[player] = sessionId;
 
-  return NextResponse.json({ success: true, sessionId });
+  const res = NextResponse.json({ success: true, sessionId });
+  res.cookies.set(`${player}-session`, sessionId, { httpOnly: true, path: "/" });
+  return res;
+}
+
+export async function DELETE(
+  req: NextRequest,
+  context: { params: Promise<{ player: string }> }
+) {
+  const { player } = await context.params;
+  if (!isPlayerKey(player)) {
+    return NextResponse.json({ success: false, reason: "invalid_player" }, { status: 400 });
+  }
+
+  const cookieSession = req.cookies.get(`${player}-session`)?.value;
+
+  if (activePlayers[player] && activePlayers[player] === cookieSession) {
+    activePlayers[player] = null;
+    const res = NextResponse.json({ success: true });
+    res.cookies.set(`${player}-session`, "", { httpOnly: true, path: "/", maxAge: 0 });
+    return res;
+  }
+
+  return NextResponse.json({ success: false, reason: "not_owner" }, { status: 403 });
 }
