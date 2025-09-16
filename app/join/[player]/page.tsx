@@ -13,9 +13,11 @@ export default function JoinPlayerPage() {
     "loading" | "success" | "taken" | "invalid" | "error"
   >("loading");
 
-  if (player !== "player1" && player !== "player2") {
-    router.push("/join/invalid");
-  }
+  useEffect(() => {
+    if (player !== "player1" && player !== "player2") {
+      router.replace("/join/invalid");
+    }
+  }, [player, router]);
 
   useEffect(() => {
     if (status === "success") {
@@ -50,6 +52,12 @@ export default function JoinPlayerPage() {
     if (player) join();
   }, [player]);
 
+  useEffect(() => {
+    if (status === "success" && player) {
+      router.replace(`/play/${player}`);
+    }
+  }, [status, player, router]);
+
   if (status === "loading") {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -57,11 +65,6 @@ export default function JoinPlayerPage() {
         <IconLoader2 stroke={2} className="animate-spin" />
       </div>
     );
-  }
-
-  if (status === "success") {
-    router.push(`/play/${player}`);
-    return null;
   }
 
   if (status === "taken" || status === "invalid" || status === "error") {
