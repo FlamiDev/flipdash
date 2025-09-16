@@ -16,8 +16,11 @@ export async function GET(
   const cookieSession = req.cookies.get(`${player}-session`)?.value;
 
   const existingPlayer = Object.entries(activePlayers).find(
-    ([p, session]) => 
-      p !== player && session && session.sessionId === req.cookies.get(`${p}-session`)?.value
+    ([p, session]) =>
+      p !== player &&
+      session &&
+      Date.now() <= session.expiresAt &&
+      session.sessionId === req.cookies.get(`${p}-session`)?.value
   );
 
   if (existingPlayer) {
@@ -31,8 +34,12 @@ export async function GET(
     return res;
   }
 
-  if (activePlayers[player] && activePlayers[player]!.sessionId !== cookieSession) {
-    return NextResponse.json({ success: false, reason: "taken" });
+  if (activePlayers[player]) {
+    if (Date.now() > activePlayers[player]!.expiresAt) {
+      activePlayers[player] = null;
+    } else if (activePlayers[player]!.sessionId !== cookieSession) {
+      return NextResponse.json({ success: false, reason: "taken" });
+    }
   }
 
   const sessionId = cookieSession ?? Math.random().toString(36).substring(2);

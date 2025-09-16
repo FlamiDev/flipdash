@@ -19,10 +19,26 @@ export async function GET(
   if (playerSession && playerSession.sessionId === cookieSession) {
     if (Date.now() > playerSession.expiresAt) {
       activePlayers[player] = null;
-      return NextResponse.json({ success: false, reason: "expired" }, { status: 403 });
+      const res = NextResponse.json({ success: false, reason: "expired" }, { status: 403 });
+      res.cookies.set(`${player}-session`, "", {
+        httpOnly: true,
+        path: "/",
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 0,
+      });
+      return res;
     } else {
       playerSession.expiresAt = Date.now() + two_hours;
-      return NextResponse.json({ success: true });
+      const res = NextResponse.json({ success: true });
+      res.cookies.set(`${player}-session`, cookieSession!, {
+        httpOnly: true,
+        path: "/",
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: two_hours / 1000,
+      });
+      return res;
     }
   }
 
