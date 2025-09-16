@@ -28,10 +28,21 @@ export async function GET(
   }
 
   if (activePlayers[player] && activePlayers[player]!.sessionId === cookieSession) {
-    activePlayers[player]!.expiresAt = Date.now() + two_hours;
-    const res = NextResponse.json({ success: true, alreadyLoggedIn: true, sessionId: cookieSession });
-    res.cookies.set(`${player}-session`, cookieSession!, { httpOnly: true, path: "/", maxAge: two_hours / 1000 });
-    return res;
+    if (Date.now() > activePlayers[player]!.expiresAt) {
+      // Expired: free slot and proceed to issue a new session below
+      activePlayers[player] = null;
+    } else {
+      activePlayers[player]!.expiresAt = Date.now() + two_hours;
+      const res = NextResponse.json({ success: true, alreadyLoggedIn: true, sessionId: cookieSession });
+      res.cookies.set(`${player}-session`, cookieSession!, {
+        httpOnly: true,
+        path: "/",
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: two_hours / 1000,
+      });
+      return res;
+    }
   }
 
   if (activePlayers[player]) {
