@@ -1,4 +1,9 @@
-export const activePlayers: Record<"player1" | "player2", string | null> = {
+export interface PlayerSession {
+  sessionId: string;
+  expiresAt: number;
+}
+
+export const activePlayers: Record<"player1" | "player2", PlayerSession | null> = {
   player1: null,
   player2: null,
 };

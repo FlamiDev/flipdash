@@ -18,6 +18,9 @@ export default function PlayerPage() {
 
             if (data.success) {
                 setAllowed(true);
+            } else if (data.reason === "expired") {
+                toast.error("Your session has expired.");
+                router.push('/');
             } else {
                 router.push('/');
                 toast.error("Unauthorized access.");
