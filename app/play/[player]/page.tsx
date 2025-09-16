@@ -49,8 +49,8 @@ export default function PlayerPage() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen p-4">
-            <h1 className="text-2xl font-bold mb-4">Speler {player}</h1>
-            <p>Speler pagina voor {player}</p>
+            <h1 className="text-2xl font-bold mb-4">Player {player}</h1>
+            <p>Player page for {player}</p>
             <Button variant="destructive" onClick={handleLeave}>Quit</Button>
         </div>  
     )

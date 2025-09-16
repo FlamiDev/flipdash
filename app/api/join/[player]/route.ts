@@ -12,6 +12,18 @@ export async function GET(
 
   const cookieSession = req.cookies.get(`${player}-session`)?.value;
 
+  const existingPlayer = Object.entries(activePlayers).find(
+    ([p, session]) => p !== player && session && session === req.cookies.get(`${p}-session`)?.value
+  );
+
+  if (existingPlayer) {
+    return NextResponse.json({ success: false, reason: "already_logged_in_elsewhere" }, { status: 403 });
+  }
+
+  if (activePlayers[player] && activePlayers[player] === cookieSession) {
+    return NextResponse.json({ success: true, alreadyLoggedIn: true, sessionId: cookieSession });
+  }
+
   if (activePlayers[player] && activePlayers[player] !== cookieSession) {
     return NextResponse.json({ success: false, reason: "taken" });
   }

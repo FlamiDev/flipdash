@@ -9,25 +9,32 @@ import { useRouter } from "next/navigation";
 export default function JoinPlayerPage() {
   const router = useRouter();
   const { player } = useParams<{ player: string }>();
-  const [status, setStatus] = useState<
-    "loading" | "success" | "taken" | "invalid" | "error"
-  >("loading");
+  const [alreadyLoggedIn, setAlreadyLoggedIn] = useState(false);
+  const [status, setStatus] = useState<"loading" | "success" | "taken" | "invalid" | "error" | "already_logged_in_elsewhere">("loading");
 
   useEffect(() => {
     if (player !== "player1" && player !== "player2") {
       router.replace("/join/invalid");
     }
-  }, [player, router]);
+
+    if (status === "success" && player) {
+      router.replace(`/play/${player}`);
+    }
+  }, [status, player, router]);
 
   useEffect(() => {
-    if (status === "success") {
-      toast.success("Succesvol ingelogd!");
+    if (status === "success" ) {
+      if (!alreadyLoggedIn) {
+      toast.success("Successfully joined!");
+      } 
     } else if (status === "taken") {
-      toast.error("Deze speler is al bezet.");
+      toast.error("This player is already taken.");
     } else if (status === "invalid") {
-      toast.error("Ongeldige speler.");
+      toast.error("Invalid player.");
     } else if (status === "error") {
-      toast.error("Er is iets misgegaan.");
+      toast.error("An error occurred.");
+    } else if (status === "already_logged_in_elsewhere") {
+      toast.error("You are already logged in as the other player.");
     }
   }, [status]);
 
@@ -37,11 +44,16 @@ export default function JoinPlayerPage() {
         const res = await fetch(`/api/join/${player}`);
         const data = await res.json();
         if (data.success) {
+          if (data.alreadyLoggedIn) {
+            setAlreadyLoggedIn(true);
+          }
           setStatus("success");
         } else if (data.reason === "taken") {
           setStatus("taken");
         } else if (data.reason === "invalid_player") {
           setStatus("invalid");
+        } else if (data.reason === "already_logged_in_elsewhere") {
+          setStatus("already_logged_in_elsewhere");
         } else {
           setStatus("error");
         }
@@ -52,12 +64,6 @@ export default function JoinPlayerPage() {
     if (player) join();
   }, [player]);
 
-  useEffect(() => {
-    if (status === "success" && player) {
-      router.replace(`/play/${player}`);
-    }
-  }, [status, player, router]);
-
   if (status === "loading") {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -67,10 +73,12 @@ export default function JoinPlayerPage() {
     );
   }
 
-  if (status === "taken" || status === "invalid" || status === "error") {
+  if (status === "taken" || status === "invalid" || status === "already_logged_in_elsewhere" || status === "error") {
     let message = "Something went wrong.";
     if (status === "taken") message = "This player is already taken.";
     if (status === "invalid") message = "This player is invalid.";
+    if (status === "already_logged_in_elsewhere") message = "You are already logged in as the other player.";
+    if (status === "error") message = "An error occurred while trying to join.";
 
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -78,4 +86,6 @@ export default function JoinPlayerPage() {
       </div>
     );
   }
+
+  return null;
 }
