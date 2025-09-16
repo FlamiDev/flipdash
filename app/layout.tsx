@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "@/styles/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { outfit } from "@/config/fonts";
+import { Toaster } from "@/components/ui/sonner"
 
 export const metadata: Metadata = {
   title: {
@@ -19,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${outfit.className} antialiased max-w-2xl mx-auto items-center`}>
+        <Toaster position="top-center" richColors />
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"
