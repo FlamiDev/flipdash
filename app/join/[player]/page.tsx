@@ -36,7 +36,7 @@ export default function JoinPlayerPage() {
     } else if (status === "already_logged_in_elsewhere") {
       toast.error("You are already logged in as the other player.");
     }
-  }, [status]);
+  }, [status, alreadyLoggedIn]);
 
   useEffect(() => {
     async function join() {
