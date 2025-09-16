@@ -21,13 +21,13 @@ export default function PlayerQRCodes() {
     <div className="flex gap-8">
       {player1QR && (
         <div className="flex flex-col items-center">
-          <Image src={player1QR} alt="QR Player 1" />
+          <Image src={player1QR} width={200} height={200} alt="QR Player 1" />
           <p>Player 1</p>
         </div>
       )}
       {player2QR && (
         <div className="flex flex-col items-center">
-          <Image src={player2QR} alt="QR Player 2" />
+          <Image src={player2QR} width={200} height={200} alt="QR Player 2" />
           <p>Player 2</p>
         </div>
       )}
