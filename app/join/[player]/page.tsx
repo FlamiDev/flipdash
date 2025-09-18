@@ -23,10 +23,10 @@ export default function JoinPlayerPage() {
   }, [status, player, router]);
 
   useEffect(() => {
-    if (status === "success" ) {
+    if (status === "success") {
       if (!alreadyLoggedIn) {
-      toast.success("Successfully joined!");
-      } 
+        toast.success("Successfully joined!");
+      }
     } else if (status === "taken") {
       toast.error("This player is already taken.");
     } else if (status === "invalid") {

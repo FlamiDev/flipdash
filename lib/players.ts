@@ -8,6 +8,7 @@ export const activePlayers: Record<"player1" | "player2", PlayerSession | null> 
   player2: null,
 };
 
-export function isPlayerKey(value: string): value is "player1" | "player2" {
-  return value === "player1" || value === "player2";
+export function isValidPlayerKey(value: string): value is "player1" | "player2" {
+  const res = value === "player1" || value === "player2";
+  return res;
 }

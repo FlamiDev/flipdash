@@ -13,7 +13,7 @@ export default function PlayerPage() {
 
     useEffect(() => {
         async function checkAccess() {
-            const res =  await fetch(`/api/session/${player}`);
+            const res = await fetch(`/api/session/get/${player}`);
             const data = await res.json();
 
             if (data.success) {
@@ -36,9 +36,14 @@ export default function PlayerPage() {
     }, [player, router]);
 
     async function handleLeave() {
-        await fetch(`/api/join/${player}`, { method: 'DELETE' });
-        toast.success("Successfully quit the session.");
-        router.push('/');
+        try {
+            await fetch(`/api/session/delete/${player}`, { method: 'DELETE' });
+            toast.success("Successfully quit the session.");
+            router.push('/');
+        } catch (error) {
+            console.error("Error leaving session:", error);
+            toast.error("Failed to quit the session.");
+        }
     }
 
     if (allowed === null) {
@@ -55,6 +60,6 @@ export default function PlayerPage() {
             <h1 className="text-2xl font-bold mb-4">Player {player}</h1>
             <p>Player page for {player}</p>
             <Button variant="destructive" onClick={handleLeave}>Quit</Button>
-        </div>  
+        </div>
     )
 }
