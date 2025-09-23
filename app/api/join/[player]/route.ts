@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { activePlayers } from "@/lib/players";
+import { PlayerKey } from "@/lib/players";
 import {
   ValidatePlayer,
   findExistingPlayerSession,
   isSessionValid,
   refreshSession,
   createSession,
+  isPlayerTaken
 } from "@/lib/session";
 
 export async function GET(
@@ -21,8 +22,8 @@ export async function GET(
 
   const cookieSession = req.cookies.get(`${player}-session`)?.value;
 
-  if (isSessionValid(player as keyof typeof activePlayers, cookieSession)) {
-    return refreshSession(player as keyof typeof activePlayers, cookieSession!);
+  if (isSessionValid(player as PlayerKey, cookieSession)) {
+    return refreshSession(player as PlayerKey, cookieSession!);
   }
 
   const alreadyLoggedInAs = findExistingPlayerSession(req);
@@ -30,13 +31,9 @@ export async function GET(
     return NextResponse.json({ success: false, reason: "already_logged_in_elsewhere" }, { status: 403 });
   }
 
-  if (
-    activePlayers[player as keyof typeof activePlayers] &&
-    activePlayers[player as keyof typeof activePlayers]!.sessionId !== cookieSession &&
-    Date.now() <= activePlayers[player as keyof typeof activePlayers]!.expiresAt
-  ) {
+  if (isPlayerTaken(player as PlayerKey, cookieSession)) {
     return NextResponse.json({ success: false, reason: "taken" });
   }
 
-  return createSession(player as keyof typeof activePlayers, cookieSession);
+  return createSession(player as PlayerKey, cookieSession);
 }

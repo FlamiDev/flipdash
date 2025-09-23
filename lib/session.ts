@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { activePlayers, isValidPlayerKey } from "./players";
+import { activePlayers, isValidPlayerKey, PlayerKey } from "./players";
 
 const two_hours = 1000 * 60;
 
@@ -19,19 +19,25 @@ export function findExistingPlayerSession(req: NextRequest): "player1" | "player
     return null;
 }
 
-export function isSessionValid(player: keyof typeof activePlayers, cookieSession?: string) {
+export function isSessionValid(player: PlayerKey, cookieSession?: string) {
     const session = activePlayers[player];
     if (!session) return false;
     return session.sessionId === cookieSession && Date.now() <= session.expiresAt;
 }
 
-export function isSessionExpired(player: keyof typeof activePlayers) {
+export function isSessionExpired(player: PlayerKey) {
     const session = activePlayers[player];
     if (!session) return true;
     return Date.now() > session.expiresAt;
 }
 
-export function refreshSession(player: keyof typeof activePlayers, sessionId: string) {
+export function isPlayerTaken(player: PlayerKey, cookieSession?: string) {
+    const session = activePlayers[player];
+    if (!session) return false;
+    return session.sessionId !== cookieSession && Date.now() <= session.expiresAt;
+}
+
+export function refreshSession(player: PlayerKey, sessionId: string) {
     activePlayers[player]!.expiresAt = Date.now() + two_hours;
     const res = NextResponse.json({ success: true, alreadyLoggedIn: true, sessionId });
     res.cookies.set(`${player}-session`, sessionId, {
@@ -44,7 +50,7 @@ export function refreshSession(player: keyof typeof activePlayers, sessionId: st
     return res;
 }
 
-export function createSession(player: keyof typeof activePlayers, cookieSession?: string) {
+export function createSession(player: PlayerKey, cookieSession?: string) {
     const sessionId = cookieSession ?? Math.random().toString(36).substring(2);
     activePlayers[player] = { sessionId, expiresAt: Date.now() + two_hours };
     const res = NextResponse.json({ success: true, sessionId });
@@ -58,7 +64,7 @@ export function createSession(player: keyof typeof activePlayers, cookieSession?
     return res;
 }
 
-export function deleteSession(player: keyof typeof activePlayers) {
+export function deleteSession(player: PlayerKey) {
     activePlayers[player] = null;
     const res = NextResponse.json({ success: true });
     res.cookies.set(`${player}-session`, "", {

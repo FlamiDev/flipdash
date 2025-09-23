@@ -3,12 +3,13 @@ export interface PlayerSession {
   expiresAt: number;
 }
 
-export const activePlayers: Record<"player1" | "player2", PlayerSession | null> = {
+export type PlayerKey = "player1" | "player2";
+
+export const activePlayers: Record<PlayerKey, PlayerSession | null> = {
   player1: null,
   player2: null,
 };
 
-export function isValidPlayerKey(value: string): value is "player1" | "player2" {
-  const res = value === "player1" || value === "player2";
-  return res;
+export function isValidPlayerKey(value: string): value is PlayerKey {
+  return value === "player1" || value === "player2";
 }
