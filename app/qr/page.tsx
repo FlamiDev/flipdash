@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function PlayerQRCodes() {
   const [player1QR, setPlayer1QR] = useState<string | null>(null);
@@ -21,13 +22,17 @@ export default function PlayerQRCodes() {
     <div className="flex gap-8">
       {player1QR && (
         <div className="flex flex-col items-center">
-          <Image src={player1QR} width={200} height={200} alt="QR Player 1" />
+          <Link href="/join/player1">
+            <Image src={player1QR} width={200} height={200} alt="QR Player 1" />
+          </Link>
           <p>Player 1</p>
         </div>
       )}
       {player2QR && (
         <div className="flex flex-col items-center">
-          <Image src={player2QR} width={200} height={200} alt="QR Player 2" />
+          <Link href="/join/player2">
+            <Image src={player2QR} width={200} height={200} alt="QR Player 2" />
+          </Link>
           <p>Player 2</p>
         </div>
       )}
