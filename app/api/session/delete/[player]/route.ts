@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { activePlayers } from "@/lib/players";
-import { ValidatePlayer, deleteSession } from "@/lib/session";
+import { PlayerKey } from "@/lib/players";
+import { checkLogin, deleteSession } from "@/lib/session";
+import { setCookies } from "@/lib/cookies";
 
 export async function DELETE(
     req: NextRequest,
@@ -8,9 +9,14 @@ export async function DELETE(
 ) {
     const { player } = await context.params;
 
-    if (ValidatePlayer(player)) {
-        return ValidatePlayer(player);
-    }
-
-    return deleteSession(player as keyof typeof activePlayers);
+   const cookieSession = req.cookies.get('session')?.value;
+ 
+   if (!checkLogin(player as PlayerKey, cookieSession)) {
+     return NextResponse.json({ success: false, reason: "not_logged_in" }, { status: 401 });
+   } 
+ 
+   deleteSession(player as PlayerKey);
+   const res = NextResponse.json({ success: true, reason: "logged_out" });
+   setCookies(res, 'session', "", 0);
+   return res;
 }

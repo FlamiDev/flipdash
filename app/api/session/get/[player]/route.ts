@@ -1,6 +1,7 @@
+import { PlayerKey } from "@/lib/players";
+import { checkLogin, expiry_time } from "@/lib/session";
 import { NextRequest, NextResponse } from "next/server";
-import { activePlayers } from "@/lib/players";
-import { ValidatePlayer, isSessionValid, isSessionExpired, refreshSession, deleteSession } from "@/lib/session";
+import { setCookies } from "@/lib/cookies";
 
 export async function GET(
   req: NextRequest,
@@ -8,25 +9,13 @@ export async function GET(
 ) {
   const { player } = await context.params;
 
-  if (ValidatePlayer(player)) {
-    return ValidatePlayer(player);
-  }
+  const cookieSession = req.cookies.get('session')?.value;
 
-  const cookieSession = req.cookies.get(`${player}-session`)?.value;
-  const session = activePlayers[player as keyof typeof activePlayers];
+  if (!checkLogin(player as PlayerKey, cookieSession)) {
+    return NextResponse.json({ success: false, reason: "not_logged_in" }, { status: 401 });
+  } 
 
-  if (!session) {
-    return NextResponse.json({ success: false, reason: "unauthorized" }, { status: 403 });
-  }
-
-  if (isSessionExpired(player as keyof typeof activePlayers)) {
-    deleteSession(player as keyof typeof activePlayers);
-    return NextResponse.json({ success: false, reason: "expired" }, { status: 403 });
-  }
-
-  if (!isSessionValid(player as keyof typeof activePlayers, cookieSession)) {
-    return NextResponse.json({ success: false, reason: "unauthorized" }, { status: 403 });
-  }
-
-  return refreshSession(player as keyof typeof activePlayers, cookieSession!);
+  const res = NextResponse.json({ success: true, reason: "logged_in" });
+  setCookies(res, 'session', cookieSession!, expiry_time);
+  return res;
 }

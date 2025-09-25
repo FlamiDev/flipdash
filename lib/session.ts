@@ -1,76 +1,85 @@
-import { NextRequest, NextResponse } from "next/server";
-import { activePlayers, isValidPlayerKey, PlayerKey } from "./players";
+import { activePlayers, isValidPlayerKey, PlayerKey, PlayerSession, getActivePlayer } from "./players";
 
-const two_hours = 1000 * 60;
+export const expiry_time = 1000 * 60 * 60 * 2; // 2 hours
 
-export function ValidatePlayer(player: string) {
+export type SessionResult =
+    | { type: "invalid_player";}
+    | { type: "already_logged_in"; sessionId: string }
+    | { type: "taken" }
+    | { type: "new_session"; sessionId: string; expiresAt: number };
+
+export type SessionResultType = SessionResult["type"];
+
+export function tryJoin(player: PlayerKey, cookieSession?: string): SessionResult {
     if (!isValidPlayerKey(player)) {
-        return NextResponse.json({ success: false, reason: "invalid_player" }, { status: 400 });
+        return { type: "invalid_player"};
     }
-    return null;
-}
 
-export function findExistingPlayerSession(req: NextRequest): "player1" | "player2" | null {
-    if (req.cookies.get("player1-session")) { 
-        return "player1"; 
-    } else if (req.cookies.get("player2-session")) { 
-        return "player2"; 
+    if (isPlayerTaken(player)) {
+        return { type: "taken"}
     }
-    return null;
+
+    if (alreadyLoggedIn(cookieSession)) {
+        return { type: "already_logged_in", sessionId: cookieSession! };
+    }
+
+    const newSession = createSession(player);
+    return { type: "new_session", sessionId: newSession.sessionId, expiresAt: newSession.expiresAt };
+    
 }
 
-export function isSessionValid(player: PlayerKey, cookieSession?: string) {
-    const session = activePlayers[player];
+export function checkLogin(player: PlayerKey, cookieSession?: string) {
+    if (!isValidPlayerKey(player)) {
+        return false;
+    }
+    if (!isSessionValid(player, cookieSession)) {
+        return false;
+    }
+    refreshSession(player);
+    return true;
+}
+
+function alreadyLoggedIn(cookieSession?: string) {
+    const player1Session = getActivePlayer("player1");
+    const player2Session = getActivePlayer("player2");
+
+    if (!cookieSession) return false;
+
+    if (player1Session?.sessionId === cookieSession) {
+        return true;
+    } 
+    if (player2Session?.sessionId === cookieSession) {
+        return true;
+    }
+    return false;
+}
+
+function isPlayerTaken(player: PlayerKey) {
+    const session = getActivePlayer(player);
+    return session != null;
+}
+
+function isSessionValid(player: PlayerKey, cookieSession?: string) {
+    const session = getActivePlayer(player);
     if (!session) return false;
-    return session.sessionId === cookieSession && Date.now() <= session.expiresAt;
+    return session.sessionId === cookieSession;
 }
 
-export function isSessionExpired(player: PlayerKey) {
-    const session = activePlayers[player];
-    if (!session) return true;
-    return Date.now() > session.expiresAt;
+function refreshSession(player: PlayerKey) {
+    const session = getActivePlayer(player);
+    if (session) {
+        session.expiresAt = Date.now() + expiry_time;
+    }
 }
 
-export function isPlayerTaken(player: PlayerKey, cookieSession?: string) {
-    const session = activePlayers[player];
-    if (!session) return false;
-    return session.sessionId !== cookieSession && Date.now() <= session.expiresAt;
-}
-
-export function refreshSession(player: PlayerKey, sessionId: string) {
-    activePlayers[player]!.expiresAt = Date.now() + two_hours;
-    const res = NextResponse.json({ success: true, alreadyLoggedIn: true, sessionId });
-    res.cookies.set(`${player}-session`, sessionId, {
-        httpOnly: true,
-        path: "/",
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: two_hours / 1000,
-    });
-    return res;
-}
-
-export function createSession(player: PlayerKey, cookieSession?: string) {
-    const sessionId = cookieSession ?? Math.random().toString(36).substring(2);
-    activePlayers[player] = { sessionId, expiresAt: Date.now() + two_hours };
-    const res = NextResponse.json({ success: true, sessionId });
-    res.cookies.set(`${player}-session`, sessionId, {
-        httpOnly: true,
-        path: "/",
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: two_hours / 1000,
-    });
-    return res;
+function createSession(player: PlayerKey) {
+    const sessionId = Math.random().toString(36).substring(2);
+    const expiresAt = Date.now() + expiry_time;
+    const session: PlayerSession = { sessionId, expiresAt };
+    activePlayers[player] = session;
+    return session;
 }
 
 export function deleteSession(player: PlayerKey) {
     activePlayers[player] = null;
-    const res = NextResponse.json({ success: true });
-    res.cookies.set(`${player}-session`, "", {
-        httpOnly: true,
-        path: "/",
-        maxAge: 0,
-    });
-    return res;
 }
