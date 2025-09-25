@@ -9,7 +9,7 @@ export default function Home() {
 
       <div className="flex flex-col gap-5 w-72 relative z-10">
         <a
-          href="#"
+          href="/gamemenu"
           className="bg-black/70 border border-gray-700 text-white py-4 px-4 rounded-lg shadow-lg hover:bg-black/50 text-center transition"
         >
           Tetris
