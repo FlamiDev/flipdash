@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { IconLoader2 } from '@tabler/icons-react';
-import { Button } from "@/components/ui/button"
-import { toast } from "sonner"
+import {useEffect, useState} from "react";
+import {useParams, useRouter} from "next/navigation";
+import {IconLoader2} from '@tabler/icons-react';
+import {Button} from "@/components/ui/button"
+import {toast} from "sonner"
 
 export default function PlayerPage() {
-    const { player } = useParams<{ player: string }>();
+    const {player} = useParams<{ player: string }>();
     const router = useRouter();
     const [allowed, setAllowed] = useState<boolean | null>(null);
 
@@ -36,21 +36,25 @@ export default function PlayerPage() {
     }, [player, router]);
 
     async function handleLeave() {
-        try {
-            await fetch(`/api/session/delete/${player}`, { method: 'DELETE' });
-            toast.success("Successfully quit the session.");
-            router.push('/');
-        } catch (error) {
-            console.error("Error leaving session:", error);
+        const res = await fetch(`/api/session/delete/${player}`, {method: 'DELETE'});
+        if (!res.ok) {
             toast.error("Failed to quit the session.");
+            return;
         }
+        const data = await res.json();
+        if (!data.success) {
+            toast.error("Cannot quit the session because you are not logged in.");
+            return;
+        }
+        toast.success("Successfully quit the session.");
+        router.push('/');
     }
 
     if (allowed === null) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen p-4">
                 <h1 className="text-2xl font-bold mb-4">Loading player page...</h1>
-                <IconLoader2 stroke={2} className="animate-spin" />
+                <IconLoader2 stroke={2} className="animate-spin"/>
             </div>
         )
     }

@@ -6,6 +6,7 @@ export function setCookies(res: NextResponse, title: string, value: string, maxA
         path: "/",
         sameSite: "lax",
         secure: process.env.NODE_ENV === "production",
-        maxAge: maxAge,
+        // NextResponse expects seconds; callers pass ms. Normalize here.
+        maxAge: Math.floor(maxAge / 1000),
     });
 }

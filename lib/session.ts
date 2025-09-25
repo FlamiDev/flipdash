@@ -15,17 +15,17 @@ export function tryJoin(player: PlayerKey, cookieSession?: string): SessionResul
         return { type: "invalid_player"};
     }
 
-    if (isPlayerTaken(player)) {
-        return { type: "taken"}
-    }
-
     if (alreadyLoggedIn(cookieSession)) {
         return { type: "already_logged_in", sessionId: cookieSession! };
     }
 
+    if (isPlayerTaken(player)) {
+        return { type: "taken"}
+    }
+
     const newSession = createSession(player);
     return { type: "new_session", sessionId: newSession.sessionId, expiresAt: newSession.expiresAt };
-    
+
 }
 
 export function checkLogin(player: PlayerKey, cookieSession?: string) {
@@ -47,7 +47,7 @@ function alreadyLoggedIn(cookieSession?: string) {
 
     if (player1Session?.sessionId === cookieSession) {
         return true;
-    } 
+    }
     if (player2Session?.sessionId === cookieSession) {
         return true;
     }
@@ -73,7 +73,7 @@ function refreshSession(player: PlayerKey) {
 }
 
 function createSession(player: PlayerKey) {
-    const sessionId = Math.random().toString(36).substring(2);
+    const sessionId = crypto.randomUUID();
     const expiresAt = Date.now() + expiry_time;
     const session: PlayerSession = { sessionId, expiresAt };
     activePlayers[player] = session;
