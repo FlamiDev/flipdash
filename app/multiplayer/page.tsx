@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";  // ✅ hier komen ze vandaan
+import React, { useState, useEffect } from "react";
 import { ArrowLeft, ArrowRight, RotateCcw } from "lucide-react";
 import { useRouter } from 'next/navigation';
     
@@ -25,13 +25,11 @@ export default function MultiplayerPage() {
       className="flex flex-col items-center justify-between min-h-screen bg-cover bg-center relative text-white"
       style={{ backgroundImage: "url('/background.png')" }}
     >
-      {/* Overlay */}
       <div className="absolute inset-0 bg-black/60" />
       
-            {/* Titel bovenaan */}
             <div className="flex items-center justify-between w-full p-4 relative z-10">
               <button
-                onClick={() => setShowQuitConfirm(true)}   // ✅ popup openen
+                onClick={() => setShowQuitConfirm(true)}
                 className="cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg bg-black/50 border border-gray-600 shadow-md hover:bg-black/70 transition"
               >
                 <ArrowLeft size={20} className="text-white" />
@@ -44,7 +42,6 @@ export default function MultiplayerPage() {
               </h1>
             </div>
 
-      {/* Scoreboard */}
       <div className="flex flex-col items-center relative z-10">
         <p className="text-lg">My score</p>
         <p className="text-5xl font-bold">1534</p>
@@ -52,11 +49,8 @@ export default function MultiplayerPage() {
         <p className="text-2xl font-semibold">893</p>
       </div>
 
-      {/* Controls */}
       <div className="flex flex-col items-center gap-4 pb-13 relative z-10">
-              {/* Container voor knoppen */}
               <div className="flex flex-col gap-4 w-fit">
-                {/* Bovenste rij */}
                 <div className="flex gap-4">
                   <button className="cursor-pointer bg-black/50 border border-gray-700 p-4 rounded-lg shadow-md">
                     <ArrowLeft size={50} />
@@ -69,7 +63,6 @@ export default function MultiplayerPage() {
                   </button>
                 </div>
       
-                {/* Onderste knop → exact zelfde breedte */}
                 <button className="cursor-pointer bg-black/50 border border-gray-700 py-5 rounded-lg shadow-md w-full text-2xl">
                   Hold to drop ↓
                 </button>

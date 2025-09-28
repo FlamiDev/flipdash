@@ -12,16 +12,13 @@ export default function MenuPage() {
       className="flex flex-col min-h-screen bg-cover bg-center relative text-white"
       style={{ backgroundImage: "url('/background.png')" }}
     >
-      {/* Overlay */}
       <div className="absolute inset-0 bg-black/60" />
 
-      {/* Titel bovenaan */}
      <div className="absolute inset-0 bg-black/60" />
 
-      {/* Titel bovenaan */}
       <div className="flex items-center justify-between w-full p-4 relative z-10">
         <button
-          onClick={() => router.push("/relaxation")}
+          onClick={() => router.push("/")}
           className="cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg bg-black/50 border border-gray-600 shadow-md hover:bg-black/70 transition"
         >
           <ArrowLeft size={20} className="text-white" />
@@ -34,9 +31,7 @@ export default function MenuPage() {
         </h1>
       </div>
 
-      {/* Inhoud gecentreerd */}
       <div className="flex flex-col flex-1 items-center justify-center gap-8 relative z-10 w-full max-w-xs mx-auto">
-        {/* Logo / icoon */}
         <div className="w-32 h-32 rounded-full bg-black/50 flex flex-col items-center justify-center border border-gray-700 shadow-lg">
           <img
             src="/tetrisblok.png"
@@ -45,7 +40,6 @@ export default function MenuPage() {
           />
         </div>
 
-        {/* Menu knoppen */}
         <div className="flex flex-col gap-4 w-full">
           <button
             onClick={() => router.push("/singleplayer")}

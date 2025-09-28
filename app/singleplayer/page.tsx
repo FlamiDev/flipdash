@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";  // ✅ hier komen ze vandaan
+import React, { useState, useEffect } from "react";
 import { ArrowLeft, ArrowRight, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -10,13 +10,12 @@ export default function Page() {
   const [showCountdown, setShowCountdown] = useState(false);
   const [countdown, setCountdown] = useState(5);
 
-  // countdown effect
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (showCountdown && countdown > 0) {
       timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
     } else if (showCountdown && countdown === 0) {
-      router.push("/gamemenu"); // ✅ redirect naar gamemenu
+      router.push("/gamemenu");
     }
     return () => clearTimeout(timer);
   }, [showCountdown, countdown, router]);
@@ -26,13 +25,11 @@ export default function Page() {
       className="flex flex-col items-center justify-between min-h-screen bg-cover bg-center relative text-white"
       style={{ backgroundImage: "url('/background.png')" }}
     >
-      {/* Overlay */}
       <div className="absolute inset-0 bg-black/60" />
       
-            {/* Titel bovenaan */}
             <div className="flex items-center justify-between w-full p-4 relative z-10">
               <button
-                onClick={() => setShowQuitConfirm(true)}   // ✅ popup openen
+                onClick={() => setShowQuitConfirm(true)}
                 className="cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg bg-black/50 border border-gray-600 shadow-md hover:bg-black/70 transition"
               >
                 <ArrowLeft size={20} className="text-white" />
@@ -45,17 +42,13 @@ export default function Page() {
               </h1>
             </div>
 
-      {/* Score */}
       <div className="flex flex-col items-center relative z-10">
         <p className="text-lg">My score</p>
         <p className="text-5xl font-bold">1534</p>
       </div>
 
-      {/* Controls */}
       <div className="flex flex-col items-center gap-4 pb-13 relative z-10">
-        {/* Container voor knoppen */}
         <div className="flex flex-col gap-4 w-fit">
-          {/* Bovenste rij */}
           <div className="flex gap-4">
             <button className="cursor-pointer bg-black/50 border border-gray-700 p-4 rounded-lg shadow-md">
               <ArrowLeft size={50} />
@@ -68,7 +61,6 @@ export default function Page() {
             </button>
           </div>
 
-          {/* Onderste knop → exact zelfde breedte */}
           <button className="cursor-pointer bg-black/50 border border-gray-700 py-5 rounded-lg shadow-md w-full text-2xl">
             Hold to drop ↓
           </button>
@@ -125,9 +117,6 @@ export default function Page() {
     </div>
   </div>
 )}
-
     </div>
-
-    
   );
 }
