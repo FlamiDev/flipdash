@@ -4,7 +4,7 @@ export const expiry_time = 1000 * 60 * 60 * 2; // 2 hours
 
 export type SessionResult =
     | { type: "invalid_player";}
-    | { type: "already_logged_in"; sessionId: string }
+    | { type: "already_logged_in"; player: PlayerKey }
     | { type: "taken" }
     | { type: "new_session"; sessionId: string; expiresAt: number };
 
@@ -15,8 +15,9 @@ export function tryJoin(player: PlayerKey, cookieSession?: string): SessionResul
         return { type: "invalid_player"};
     }
 
-    if (alreadyLoggedIn(cookieSession)) {
-        return { type: "already_logged_in", sessionId: cookieSession! };
+    const loggedInAs = alreadyLoggedIn(cookieSession);
+    if (loggedInAs) {
+        return { type: "already_logged_in", player: loggedInAs };
     }
 
     if (isPlayerTaken(player)) {
@@ -39,19 +40,19 @@ export function checkLogin(player: PlayerKey, cookieSession?: string) {
     return true;
 }
 
-function alreadyLoggedIn(cookieSession?: string) {
+function alreadyLoggedIn(cookieSession?: string): PlayerKey | null {
     const player1Session = getActivePlayer("player1");
     const player2Session = getActivePlayer("player2");
 
-    if (!cookieSession) return false;
+    if (!cookieSession) return null;
 
     if (player1Session?.sessionId === cookieSession) {
-        return true;
+        return "player1";
     }
     if (player2Session?.sessionId === cookieSession) {
-        return true;
+        return "player2";
     }
-    return false;
+    return null;
 }
 
 function isPlayerTaken(player: PlayerKey) {

@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "invalid_player" }, { status: 400 });
   }
 
-  const url = `${origin}/join/${player}`;
+  const url = `${origin}/join/${player}?redirect=/play/${player}`;
   const qrDataUrl = await QRCode.toDataURL(url);
 
   return NextResponse.json({ player, qr: qrDataUrl });

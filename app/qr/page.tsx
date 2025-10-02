@@ -22,7 +22,7 @@ export default function PlayerQRCodes() {
     <div className="flex gap-8">
       {player1QR && (
         <div className="flex flex-col items-center">
-          <Link href="/join/player1">
+          <Link href="/join/player1?redirect=/play/player1">
             <Image src={player1QR} width={200} height={200} alt="QR Player 1" />
           </Link>
           <p>Player 1</p>
@@ -30,7 +30,7 @@ export default function PlayerQRCodes() {
       )}
       {player2QR && (
         <div className="flex flex-col items-center">
-          <Link href="/join/player2">
+          <Link href="/join/player2?redirect=/play/player2">
             <Image src={player2QR} width={200} height={200} alt="QR Player 2" />
           </Link>
           <p>Player 2</p>
